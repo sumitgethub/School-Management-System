@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     #App
     'User',
+    'Master',
+    'School'
 
 ]
 
@@ -92,7 +94,7 @@ DATABASES = {
                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
                 'USER': 'postgres',
                 'PASSWORD': '76545776',
-                'NAME': 'school-management',
+                'NAME': 'school-management-system',
                 'HOST': 'localhost',
                 'PORT': '5433',
             }
@@ -140,3 +142,7 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# custom_user
+AUTH_USER_MODEL = 'User.User'
