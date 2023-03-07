@@ -3,21 +3,27 @@ from django.db import models
 from School.models import School
 from Master.models import Gender
 
-class SchoolUserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError('The Email field must be set')
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+class UserManager(BaseUserManager):
+    def create_user(self,unique_id,password = None,password2=None,**extra_fields):
+        if not unique_id:
+            raise ValueError('unique_id must be provided')
+
+        user = self.model(
+            
+            unique_id = unique_id,
+            **extra_fields
+            )
+
         user.set_password(password)
-        user.save(using=self._db)
+        user.save()
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        return self.create_user(email, password, **extra_fields)
+    def create_superuser(self, unique_id,password, **extra_fields):
+        extra_fields.setdefault('is_staff',True)
+        extra_fields.setdefault('is_superuser',True)
+        extra_fields.setdefault('is_active',True)
 
+        return self.create_user(unique_id,password,**extra_fields)
 
 class User(AbstractUser):
     phone_number = models.CharField(max_length=50,unique=True,blank=True,null=True)
@@ -30,7 +36,7 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=True, blank=True)
     is_admin = models.BooleanField(default=False, blank=True)
 
-    objects = SchoolUserManager()
+    objects = UserManager()
     USERNAME_FIELD = "unique_id"
     REQUIRED_FIELD = []
 

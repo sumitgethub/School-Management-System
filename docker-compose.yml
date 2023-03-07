@@ -1,0 +1,63 @@
+version: "3.8"
+services:
+
+  # Redis is a service
+  redis:
+    restart: always
+    image: "redis:6.2-alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  # db is a service
+  db:
+    image: postgres:12.6-alpine
+    container_name: db
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  backed:
+    build:
+      context: .
+      dockerfile: Dockerfile # Optional
+    env_file:
+      - .env
+    container_name: backend
+    # run command using shell-
+    command: >
+      sh -c "python3 manage.py runserver 0.0.0.0:8080"  
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - /app/venv  # Omits venv of local folder
+      - .:/app # Maps local dir to container directory
+
+    depends_on:
+      - db
+      - redis
+    stdin_open: true
+      # Celery Service
+  celery:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    command: >
+      sh -c "celery -A App worker -l DEBUG"
+    container_name: celery
+    volumes:
+      - /app/venv
+      - .:/app
+    depends_on:
+      - backed
+
+volumes:
+  postgres_data:
+  redis-data:
